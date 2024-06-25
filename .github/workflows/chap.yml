@@ -24,7 +24,7 @@ jobs:
       - name: Create Dockerfile
         run: |
           echo 'FROM ubuntu:22.04' > Dockerfile
-          echo 'RUN apt-get update && apt-get install -y make cmake git' >> Dockerfile
+          echo 'RUN apt-get update && apt-get install -y make cmake git g++ clang' >> Dockerfile
 
       - name: Build Docker image for ARM 32-bit
         run: |
