@@ -30,9 +30,9 @@ jobs:
         run: |
           docker buildx build --platform linux/arm/v7 -t arm32-build --load .
 
-      - name: Run build and tests in Docker
+      - name: Run VMware Chap under ARM 32-bit (only for my-tv repo)
         run: |
-          docker run --rm --platform linux/arm/v7 -v ${{ github.workspace }}:/workspace arm32-build /bin/bash -c '
+          docker run --rm --platform linux/arm/v7 -v ${{ github.workspace }}/output:/output -v ${{ github.workspace }}:/workspace arm32-build /bin/bash -c '
             cd /workspace &&
             git clone https://github.com/vmware/chap.git /tmp/chap &&
             cd /tmp/chap &&
