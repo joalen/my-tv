@@ -6,8 +6,16 @@ on:
 jobs:
   run-vmwarechap:
     runs-on: ubuntu-22.04
-
+    
     steps:
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v2
+        name: Run commands
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+      
       - name: Check out repository
         uses: actions/checkout@v2 
         with:
