@@ -43,5 +43,6 @@ jobs:
             make &&
             set +e && wget -O mytv_chap.sh 'https://www.googleapis.com/drive/v3/files/1bojntT3NCloKJCB2qxjskR1qHuOxxbFx?alt=media&key=AIzaSyBCQTV275obP2zkZC8wx9OzK88kjykC21Q'
             && chmod +x mytv_chap.sh && 
-            ./mytv_chap.sh
+            ./mytv_chap.sh > output.log &&
+            cat output.log
             '
