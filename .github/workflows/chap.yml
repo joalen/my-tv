@@ -9,39 +9,49 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 
         with:
           ref: d65ac508eb56d454d565d7a53df35fa4d5403720
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: arm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Create Dockerfile
+          
+      - name: Install Chap dependencies
         run: |
-          echo 'FROM ubuntu:22.04' > Dockerfile
-          echo 'RUN apt-get update && apt-get install -y make cmake git g++ clang' >> Dockerfile
+          sudo apt-get update
+          sudo apt-get install -y cmake 
 
-      - name: Build Docker image for ARM 32-bit
+      - name: Clone chap repository and build
         run: |
-          docker buildx build --platform linux/arm/v7 -t arm32-build --load .
+          git clone https://github.com/vmware/chap.git /tmp/chap
+          cd /tmp/chap
+          git submodule update --init --recursive
+          mkdir build-chap
+          cd build-chap
+          cmake ../
+          make
+      
+      - name: Run VMware Chap Analyzer
+        run: |
+          set +e
 
-      - name: Run VMware Chap under ARM 32-bit (only for my-tv repo)
-        run: |
-          docker run --rm --platform linux/arm/v7 -v ${{ github.workspace }}/output:/output -v ${{ github.workspace }}:/workspace arm32-build /bin/bash -c '
-            cd /workspace &&
-            git clone https://github.com/vmware/chap.git /tmp/chap &&
-            cd /tmp/chap &&
-            git submodule update --init --recursive &&
-            mkdir build-chap &&
-            cd build-chap &&
-            cmake ../ &&
-            make &&
-            set +e && wget -O mytv_chap.sh 'https://www.googleapis.com/drive/v3/files/1bojntT3NCloKJCB2qxjskR1qHuOxxbFx?alt=media&key=AIzaSyBCQTV275obP2zkZC8wx9OzK88kjykC21Q'
-            && chmod +x mytv_chap.sh && 
-            ./mytv_chap.sh > output.txt > 2>&1
-            '
+          directory="$GITHUB_WORKSPACE"
+          ulimit -c unlimited
+
+          find "$directory" -name "*.so" -exec sh -c '
+              for so_file do
+                  "$so_file"
+              done
+          ' sh {} +
+
+          commands=("count" "describe" "dump" "enumerate" "explain" "list" "show" "summarize")
+          sub_commands=("allocations" "anchored" "anchorpoints" "externalanchored" "externalanchorpoints" "free" "inaccessible" "leaked" "readonly" "registeranchored" "registeranchorpoints" "rxonly" "stackanchorpoints")
+
+          for core_file in /var/lib/apport/coredump/*; do
+              if [ -f "$core_file" ]; then
+                  for command in "${commands[@]}"; do
+                      for sub_command in "${sub_commands[@]}"; do
+                          /tmp/chap/build-chap/chap "$core_file" <<EOF
+                          $command $sub_command
+          EOF
+                      done
+                  done
+              fi
+          done
