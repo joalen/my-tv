@@ -28,7 +28,7 @@ jobs:
         with:
           ref: d65ac508eb56d454d565d7a53df35fa4d5403720
 
-      - name: Install Dr. Memory
+      - name: Install DynamoRIO
         if: runner.os == 'Linux'
         run: | 
           sudo apt-get update
